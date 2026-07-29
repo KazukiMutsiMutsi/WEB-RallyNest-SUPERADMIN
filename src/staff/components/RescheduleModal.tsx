@@ -73,19 +73,18 @@ export default function RescheduleModal({ booking, onConfirm, onDecline, onClose
         {/* Header */}
         <div style={s.header}>
           <div style={s.headerLeft}>
-            <span style={s.headerIcon}>↻</span>
+            <div style={s.headerIcon} />
             <div>
               <h2 style={s.title}>Reschedule Request</h2>
               <p style={s.subtitle}>Customer has asked to change this booking</p>
             </div>
           </div>
-          <button onClick={onClose} style={s.closeBtn} aria-label="Close">✕</button>
+          <button onClick={onClose} style={s.closeBtn} aria-label="Close">&#x2715;</button>
         </div>
 
         {/* Customer note */}
         {booking.rescheduleNote && (
           <div style={s.noteBox}>
-            <span style={s.noteIcon}>💬</span>
             <div>
               <div style={s.noteLabel}>Customer's note</div>
               <div style={s.noteText}>"{booking.rescheduleNote}"</div>
@@ -97,16 +96,16 @@ export default function RescheduleModal({ booking, onConfirm, onDecline, onClose
         <div style={s.currentBox}>
           <div style={s.currentLabel}>Current booking</div>
           <div style={s.currentRow}>
-            <span>👤</span> {booking.playerName} · {booking.playerPhone}
+            <span style={s.rowLabel}>Player</span> {booking.playerName} · {booking.playerPhone}
           </div>
           <div style={s.currentRow}>
-            <span>🏓</span> {booking.courtName}
+            <span style={s.rowLabel}>Court</span> {booking.courtName}
           </div>
           <div style={s.currentRow}>
-            <span>📅</span> {booking.date} &nbsp;·&nbsp; {booking.startTime} – {booking.endTime}
+            <span style={s.rowLabel}>Date</span> {booking.date} · {booking.startTime} – {booking.endTime}
           </div>
           <div style={s.currentRow}>
-            <span>💰</span> ₱{booking.amount.toLocaleString()} · {booking.paid ? 'Paid ✓' : 'Unpaid'}
+            <span style={s.rowLabel}>Amount</span> ₱{booking.amount.toLocaleString()} · {booking.paid ? 'Paid' : 'Unpaid'}
           </div>
         </div>
 
@@ -114,7 +113,7 @@ export default function RescheduleModal({ booking, onConfirm, onDecline, onClose
         <div style={s.fieldsLabel}>New schedule</div>
 
         {error && (
-          <div style={s.errorBox} role="alert">⚠️ {error}</div>
+          <div style={s.errorBox} role="alert">{error}</div>
         )}
 
         <div style={s.fields}>
@@ -179,7 +178,7 @@ export default function RescheduleModal({ booking, onConfirm, onDecline, onClose
         {/* Duration preview */}
         {startTime && endTime && calcDuration(startTime, endTime) > 0 && (
           <div style={s.durationPreview}>
-            ⏱ Duration: <strong>{calcDuration(startTime, endTime)}hr</strong>
+            Duration: <strong>{calcDuration(startTime, endTime)}hr</strong>
             {selectedCourt && (
               <> &nbsp;·&nbsp; Est. amount: <strong>₱{(calcDuration(startTime, endTime) * selectedCourt.pricePerHour * 21).toLocaleString()}</strong></>
             )}
@@ -189,19 +188,19 @@ export default function RescheduleModal({ booking, onConfirm, onDecline, onClose
         {/* Actions */}
         <div style={s.actions}>
           <button style={s.btnDecline} onClick={onDecline}>
-            ✕ Decline Request
+            Decline Request
           </button>
           <div style={s.actionRight}>
             <button style={s.btnCancel} onClick={onClose}>Cancel</button>
             <button style={s.btnConfirm} onClick={handleConfirm}>
-              ✓ Confirm Reschedule
+              Confirm Reschedule
             </button>
           </div>
         </div>
 
         {/* Staff permission note */}
         <p style={s.permissionNote}>
-          ℹ️ Staff can only edit bookings when the customer has requested a reschedule.
+          Staff can only edit bookings when the customer has requested a reschedule.
           Confirming will update the booking and notify the customer.
         </p>
       </div>
@@ -229,9 +228,8 @@ const s: Record<string, React.CSSProperties> = {
   headerLeft: { display: 'flex', alignItems: 'center', gap: 12 },
   headerIcon: {
     width: 40, height: 40, borderRadius: 10,
-    background: '#fdf4ff', color: '#7c3aed',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 20, fontWeight: 800, flexShrink: 0,
+    background: '#f5f3ff', border: '1px solid #ddd6fe',
+    flexShrink: 0,
   },
   title:    { fontSize: 17, fontWeight: 800, color: '#0f172a', margin: 0 },
   subtitle: { fontSize: 12, color: '#64748b', margin: '2px 0 0 0' },
@@ -256,6 +254,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   currentLabel: { fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
   currentRow:   { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#334155' },
+  rowLabel:     { fontSize: 11, fontWeight: 700, color: '#94a3b8', width: 48, flexShrink: 0 },
 
   fieldsLabel: { fontSize: 12, fontWeight: 700, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 0.5 },
 

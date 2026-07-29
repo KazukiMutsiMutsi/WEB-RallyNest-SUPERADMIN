@@ -17,8 +17,8 @@ const TYPE_COLOR: Record<string, { bg: string; color: string }> = {
 
 const CLOSE_REASONS: CloseReason[] = ['Court Maintenance'];
 
-const REASON_CONFIG: Record<CloseReason, { icon: string; color: string; bg: string }> = {
-  'Court Maintenance': { icon: '🔧', color: '#b45309', bg: '#fef3c7' }
+const REASON_CONFIG: Record<CloseReason, { color: string; bg: string }> = {
+  'Court Maintenance': { color: '#b45309', bg: '#fef3c7' }
 };
 
 // ─── Close reason picker modal ───────────────────────────────────────────────
@@ -41,7 +41,7 @@ function CloseModal({
             <h3 style={m.title}>Close {courtName}?</h3>
             <p style={m.sub}>Select a reason before closing the court.</p>
           </div>
-          <button onClick={onCancel} style={m.closeBtn}>✕</button>
+          <button onClick={onCancel} style={m.closeBtn} aria-label="Close">&#x2715;</button>
         </div>
 
         <div style={m.options}>
@@ -58,11 +58,11 @@ function CloseModal({
                   background:    isSelected ? cfg.bg    : '#fff',
                 }}
               >
-                <span style={m.optionIcon}>{cfg.icon}</span>
+                <div style={{ ...m.optionDot, background: isSelected ? cfg.color : '#e2e8f0' }} />
                 <span style={{ ...m.optionLabel, color: isSelected ? cfg.color : '#0f172a', fontWeight: isSelected ? 700 : 500 }}>
                   {reason}
                 </span>
-                {isSelected && <span style={{ ...m.checkMark, color: cfg.color }}>✓</span>}
+                {isSelected && <div style={{ ...m.checkDot, background: cfg.color }} />}
               </button>
             );
           })}
@@ -92,9 +92,9 @@ const m: Record<string, React.CSSProperties> = {
   closeBtn:    { background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8', padding: 2, flexShrink: 0 },
   options:     { display: 'flex', flexDirection: 'column', gap: 10 },
   option:      { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', border: '1.5px solid', borderRadius: 10, cursor: 'pointer', textAlign: 'left', transition: 'all 140ms' },
-  optionIcon:  { fontSize: 20, flexShrink: 0 },
+  optionDot:   { width: 10, height: 10, borderRadius: '50%', flexShrink: 0, transition: 'background 140ms' },
   optionLabel: { flex: 1, fontSize: 14 },
-  checkMark:   { fontSize: 16, fontWeight: 800, flexShrink: 0 },
+  checkDot:    { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 },
   actions:     { display: 'flex', justifyContent: 'flex-end', gap: 8 },
   btnCancel:   { padding: '9px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' },
   btnConfirm:  { padding: '9px 18px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', fontSize: 13, fontWeight: 700 },
@@ -271,7 +271,10 @@ export default function StaffCourts() {
           const reasonCfg = court.closeReason ? REASON_CONFIG[court.closeReason] : null;
 
           return (
-            <div key={court.id} style={{ ...s.courtCard, opacity: court.active ? 1 : 0.72 }}>
+            <div key={court.id} style={{ ...s.courtCard, opacity: court.active ? 1 : 0.75 }}>
+              {/* Status stripe */}
+              <div style={{ height:4, background: court.active ? '#10b981' : '#94a3b8' }} />
+
               {/* Header: type badge + toggle */}
               <div style={s.courtCardHead}>
                 <span style={{ ...s.typeBadge, background: tc.bg, color: tc.color }}>{court.type}</span>
@@ -289,9 +292,7 @@ export default function StaffCourts() {
               </div>
 
               <div style={s.courtName}>{court.name}</div>
-              <div style={s.courtLocation}>📍 {court.location}</div>
-
-              {/* Stats: price · slots · today · now playing */}
+              <div style={s.courtLocation}>{court.location}</div>
               <div style={s.courtStats}>
                 <div style={s.courtStat}>
                   <div style={s.courtStatValue}>₱{court.pricePerHour}</div>
@@ -332,7 +333,7 @@ export default function StaffCourts() {
                   <>
                     <div style={{ ...s.statusDot, background: reasonCfg?.color ?? '#94a3b8' }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: reasonCfg?.color ?? '#64748b' }}>
-                      {court.closeReason ? `${REASON_CONFIG[court.closeReason].icon} ${court.closeReason}` : 'Court is Closed'}
+                      {court.closeReason ?? 'Court is Closed'}
                     </span>
                   </>
                 )}
@@ -341,7 +342,7 @@ export default function StaffCourts() {
               {/* Reason badge when closed */}
               {!court.active && court.closeReason && (
                 <div style={{ ...s.reasonBadge, background: reasonCfg?.bg, color: reasonCfg?.color }}>
-                  {reasonCfg?.icon} {court.closeReason}
+                  {court.closeReason}
                 </div>
               )}
             </div>
@@ -364,24 +365,24 @@ export default function StaffCourts() {
 const s: Record<string, React.CSSProperties> = {
   page:          { display: 'flex', flexDirection: 'column', gap: 24 },
   summaryRow:    { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 16 },
-  summaryCard:   { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', textAlign: 'center' as const },
+  summaryCard:   { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', textAlign: 'center' as const, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' },
   summaryValue:  { fontSize: 28, fontWeight: 900, marginBottom: 4 },
   summaryLabel:  { fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' as const, letterSpacing: 0.5 },
-  grid:          { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 },
-  courtCard:     { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 10, transition: 'opacity 200ms' },
-  courtCardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  grid:          { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 },
+  courtCard:     { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'hidden', transition: 'opacity 200ms', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' },
+  courtCardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #f1f5f9' },
   typeBadge:     { padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 },
   toggleWrap:    { cursor: 'pointer', display: 'flex', alignItems: 'center' },
   toggleTrack:   { width: 44, height: 24, borderRadius: 12, position: 'relative' as const, transition: 'background 200ms', flexShrink: 0 },
   toggleThumb:   { position: 'absolute' as const, top: 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.25)', transition: 'transform 200ms' },
-  courtName:     { fontSize: 15, fontWeight: 800, color: '#0f172a' },
-  courtLocation: { fontSize: 12, color: '#64748b' },
+  courtName:     { fontSize: 15, fontWeight: 800, color: '#0f172a', padding: '0 20px', marginBottom: 2 },
+  courtLocation: { fontSize: 12, color: '#64748b', padding: '0 20px 12px' },
   courtStats:    { display: 'flex', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', paddingTop: 12, paddingBottom: 12 },
   courtStat:     { flex: 1, textAlign: 'center' as const },
   courtStatValue:{ fontSize: 16, fontWeight: 900, color: '#0f172a' },
   courtStatLabel:{ fontSize: 9, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: 0.3, marginTop: 2 },
-  statusBar:     { display: 'flex', alignItems: 'center', gap: 8 },
+  statusBar:     { display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px' },
   statusDot:     { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 },
   statusLabel:   { fontSize: 12, fontWeight: 700 },
-  reasonBadge:   { alignSelf: 'flex-start', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 },
+  reasonBadge:   { alignSelf: 'flex-start', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700, margin: '0 20px 12px' },
 };

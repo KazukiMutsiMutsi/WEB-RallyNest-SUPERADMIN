@@ -330,7 +330,6 @@ export default function StaffSchedule() {
       {/* ── Reschedule alert banner ── */}
       {rescheduleCount > 0 && (
         <div style={s.alertBanner}>
-          <span>↻</span>
           <span><strong>{rescheduleCount}</strong> customer{rescheduleCount > 1 ? 's have' : ' has'} requested a reschedule — review below.</span>
         </div>
       )}
@@ -357,9 +356,9 @@ export default function StaffSchedule() {
           <span style={s.countPill}>{listFiltered.length} booking{listFiltered.length !== 1 ? 's' : ''}</span>
         </div>
         <div style={s.viewToggle}>
-          <button style={{ ...s.viewBtn, ...(view === 'month' ? s.viewBtnActive : {}) }} onClick={() => setView('month')}>🗓 Month</button>
-          <button style={{ ...s.viewBtn, ...(view === 'day'   ? s.viewBtnActive : {}) }} onClick={() => setView('day')}>📅 Day</button>
-          <button style={{ ...s.viewBtn, ...(view === 'list'  ? s.viewBtnActive : {}) }} onClick={() => setView('list')}>☰ List</button>
+          <button style={{ ...s.viewBtn, ...(view === 'month' ? s.viewBtnActive : {}) }} onClick={() => setView('month')}>Month</button>
+          <button style={{ ...s.viewBtn, ...(view === 'day'   ? s.viewBtnActive : {}) }} onClick={() => setView('day')}>Day</button>
+          <button style={{ ...s.viewBtn, ...(view === 'list'  ? s.viewBtnActive : {}) }} onClick={() => setView('list')}>List</button>
         </div>
       </div>
 
@@ -431,16 +430,16 @@ export default function StaffSchedule() {
                           </div>
                           {/* Time */}
                           <div style={s.bookingTime}>
-                            🕐 {fmt12(b.startTime)} – {fmt12(b.endTime)} · {b.durationHrs}hr
+                            {fmt12(b.startTime)} – {fmt12(b.endTime)} · {b.durationHrs}hr
                           </div>
                           {/* Amount */}
                           <div style={s.bookingAmt}>
-                            💰 ₱{b.amount.toLocaleString()}
+                            ₱{b.amount.toLocaleString()}
                             <span style={b.paid ? s.paidTag : s.unpaidTag}>{b.paid ? 'Paid' : 'Unpaid'}</span>
                           </div>
                           {/* Time remaining if playing */}
                           {mLeft !== null && mLeft > 0 && (
-                            <div style={s.playingTag}>⏱ {mLeft}m remaining</div>
+                            <div style={s.playingTag}>{mLeft}m remaining</div>
                           )}
                         </div>
                       );
@@ -461,16 +460,16 @@ export default function StaffSchedule() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <StatusBadge status={selected.status} />
-                  <button onClick={() => setSelected(null)} style={s.closeBtn}>✕</button>
+                  <button onClick={() => setSelected(null)} style={s.closeBtn} aria-label="Close">&#x2715;</button>
                 </div>
               </div>
               <div style={s.detailGrid}>
-                <div style={s.detailItem}><span style={s.detailIcon}>🏓</span>{selected.courtName}</div>
-                <div style={s.detailItem}><span style={s.detailIcon}>🕐</span>{fmt12(selected.startTime)} – {fmt12(selected.endTime)} · {selected.durationHrs}hr</div>
-                <div style={s.detailItem}><span style={s.detailIcon}>💰</span>₱{selected.amount.toLocaleString()} · <span style={selected.paid ? s.paid : s.unpaid}>{selected.paid ? 'Paid' : 'Unpaid'}</span></div>
+                <div style={s.detailItem}><span style={s.detailIcon}>Court</span>{selected.courtName}</div>
+                <div style={s.detailItem}><span style={s.detailIcon}>Time</span>{fmt12(selected.startTime)} – {fmt12(selected.endTime)} · {selected.durationHrs}hr</div>
+                <div style={s.detailItem}><span style={s.detailIcon}>Amount</span>₱{selected.amount.toLocaleString()} · <span style={selected.paid ? s.paid : s.unpaid}>{selected.paid ? 'Paid' : 'Unpaid'}</span></div>
                 {isNowPlaying(selected, now) && (
                   <div style={s.detailItem}>
-                    <span style={s.detailIcon}>⏱</span>
+                    <span style={s.detailIcon}>Live</span>
                     <span style={{ color: '#16a34a', fontWeight: 700 }}>{minsRemaining(selected.endTime, now)}m remaining</span>
                   </div>
                 )}
@@ -478,8 +477,8 @@ export default function StaffSchedule() {
               <div style={s.detailActions}>
                 {selected.status === 'pending' && (
                   <>
-                    <button style={s.btnGreen} onClick={() => { updateStatus(selected.id, 'confirmed'); setSelected(null); }}>✓ Approve</button>
-                    <button style={s.btnRed}   onClick={() => { updateStatus(selected.id, 'cancelled'); setSelected(null); }}>✕ Decline</button>
+                    <button style={s.btnGreen} onClick={() => { updateStatus(selected.id, 'confirmed'); setSelected(null); }}>Approve</button>
+                    <button style={s.btnRed}   onClick={() => { updateStatus(selected.id, 'cancelled'); setSelected(null); }}>Decline</button>
                   </>
                 )}
                 {selected.status === 'confirmed' && (
@@ -492,7 +491,7 @@ export default function StaffSchedule() {
                   <button style={s.btnBlue} onClick={() => { updateStatus(selected.id, 'completed'); setSelected(null); }}>Mark Complete</button>
                 )}
                 {selected.status === 'reschedule_requested' && (
-                  <button style={s.btnViolet} onClick={() => { setRescheduleTarget(selected); setSelected(null); }}>↻ Review Reschedule</button>
+                  <button style={s.btnViolet} onClick={() => { setRescheduleTarget(selected); setSelected(null); }}>Review Reschedule</button>
                 )}
               </div>
             </div>
@@ -533,21 +532,21 @@ export default function StaffSchedule() {
                         {mLeft !== null && <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700 }}>{mLeft}m left</div>}
                       </td>
                       <td style={{ ...s.td, fontWeight: 700 }}>₱{b.amount.toLocaleString()}</td>
-                      <td style={s.td}><span style={b.paid ? s.paidBadge : s.unpaidBadge}>{b.paid ? '✓ Paid' : 'Unpaid'}</span></td>
+                      <td style={s.td}><span style={b.paid ? s.paidBadge : s.unpaidBadge}>{b.paid ? 'Paid' : 'Unpaid'}</span></td>
                       <td style={s.td}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                           <StatusBadge status={b.status} size="sm" />
                           {b.status === 'reschedule_requested' && b.rescheduleNote && (
                             <div style={{ fontSize: 10, color: '#7c3aed', fontStyle: 'italic' }} title={b.rescheduleNote}>
-                              💬 {b.rescheduleNote.slice(0, 30)}{b.rescheduleNote.length > 30 ? '…' : ''}
+                              {b.rescheduleNote.slice(0, 30)}{b.rescheduleNote.length > 30 ? '…' : ''}
                             </div>
                           )}
                         </div>
                       </td>
                       <td style={s.td}>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                          {b.status === 'reschedule_requested' && <button style={s.btnViolet} onClick={() => setRescheduleTarget(b)}>↻ Review</button>}
-                          {b.status === 'pending'    && <><button style={s.btnGreen} onClick={() => updateStatus(b.id, 'confirmed')}>✓ Approve</button><button style={s.btnRed} onClick={() => updateStatus(b.id, 'cancelled')}>✕ Decline</button></>}
+                          {b.status === 'reschedule_requested' && <button style={s.btnViolet} onClick={() => setRescheduleTarget(b)}>Review</button>}
+                          {b.status === 'pending'    && <><button style={s.btnGreen} onClick={() => updateStatus(b.id, 'confirmed')}>Approve</button><button style={s.btnRed} onClick={() => updateStatus(b.id, 'cancelled')}>Decline</button></>}
                           {b.status === 'confirmed'  && <><button style={s.btnGreen} onClick={() => updateStatus(b.id, 'checked_in')}>On Court</button><button style={s.btnGhost} onClick={() => updateStatus(b.id, 'no_show')}>No Show</button></>}
                           {b.status === 'checked_in' && <button style={s.btnBlue} onClick={() => updateStatus(b.id, 'completed')}>Complete</button>}
                         </div>
@@ -577,9 +576,9 @@ const s: Record<string, React.CSSProperties> = {
   filters:     { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' },
   select:      { padding: '8px 12px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 13, color: '#0f172a', background: '#fff', outline: 'none', cursor: 'pointer' },
   countPill:   { fontSize: 13, color: '#94a3b8', fontWeight: 600 },
-  viewToggle:  { display: 'flex', border: '1.5px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' },
-  viewBtn:     { padding: '7px 14px', border: 'none', background: '#fff', fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' },
-  viewBtnActive: { background: '#0f172a', color: '#fff' },
+  viewToggle:  { display: 'flex', border: '1px solid #e2e8f0', borderRadius: 9, overflow: 'hidden', background: '#fff' },
+  viewBtn:     { padding: '8px 16px', border: 'none', background: 'transparent', fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' },
+  viewBtnActive: { background: '#0a0f1e', color: '#fff' },
 
   calCard:     { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' },
   legend:      { display: 'flex', flexWrap: 'wrap', gap: 12, padding: '12px 16px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' },
@@ -613,7 +612,7 @@ const s: Record<string, React.CSSProperties> = {
   detailSub:     { fontSize: 12, color: '#64748b', marginTop: 2 },
   detailGrid:    { display: 'flex', flexDirection: 'column', gap: 6 },
   detailItem:    { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#334155' },
-  detailIcon:    { fontSize: 14, flexShrink: 0 },
+  detailIcon:    { fontSize: 11, fontWeight: 700, color: '#94a3b8', width: 46, flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: 0.3 },
   detailActions: { display: 'flex', gap: 8 },
   paid:          { color: '#15803d', fontWeight: 700 },
   unpaid:        { color: '#b45309', fontWeight: 700 },

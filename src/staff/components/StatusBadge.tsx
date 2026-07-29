@@ -7,7 +7,7 @@ const CONFIG: Record<BookingStatus, { label: string; bg: string; color: string }
   completed:             { label: 'Completed',    bg: '#f1f5f9', color: '#475569' },
   cancelled:             { label: 'Cancelled',    bg: '#fee2e2', color: '#dc2626' },
   no_show:               { label: 'No Show',      bg: '#fee2e2', color: '#dc2626' },
-  reschedule_requested:  { label: '↻ Reschedule', bg: '#fdf4ff', color: '#7c3aed' },
+  reschedule_requested:  { label: 'Reschedule', bg: '#fdf4ff', color: '#7c3aed' },
 };
 
 interface Props {

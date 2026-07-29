@@ -115,3 +115,13 @@ export function getAllCourts(): StaffCourt[] {
 export function updateCourt(id: string, changes: Partial<StaffCourt>): void {
   courts = courts.map((c) => (c.id === id ? { ...c, ...changes } : c));
 }
+
+/** Add a new court */
+export function addCourt(court: StaffCourt): void {
+  courts = [...courts, court];
+}
+
+/** Delete a court by ID */
+export function deleteCourt(id: string): void {
+  courts = courts.filter((c) => c.id !== id);
+}
