@@ -43,6 +43,18 @@ export interface ManagedAdmin {
   facilityId: string;
   status: 'active' | 'suspended';
   createdAt: string;
+  // Permissions granted by superadmin
+  permissions: AdminPermissions;
+}
+
+export interface AdminPermissions {
+  canManageUsers: boolean;      // access to Users screen
+  canManageCourts: boolean;     // access to Courts screen
+  canManageStaff: boolean;      // access to Staff screen
+  canViewReports: boolean;      // access to Reports screen
+  canManageSettings: boolean;   // access to Settings screen
+  canManagePayments: boolean;   // payment-related actions
+  canExportData: boolean;       // export CSV/reports
 }
 
 export interface ManagedStaff {
@@ -53,6 +65,15 @@ export interface ManagedStaff {
   facilityId: string;
   status: 'active' | 'suspended';
   createdAt: string;
+  // Permissions granted by admin
+  permissions: StaffPermissions;
+}
+
+export interface StaffPermissions {
+  canCheckIn: boolean;        // Check-in screen
+  canManageCourts: boolean;   // Courts screen
+  canViewSchedule: boolean;   // Schedule screen
+  canViewPlayers: boolean;    // Players screen
 }
 
 export type BookingStatus =
@@ -213,6 +234,22 @@ export interface BackupEntry {
   size: string;
   status: 'completed' | 'failed' | 'in_progress';
   createdAt: string;
+}
+
+export interface TenantRecord {
+  tenantId: string;          // e.g. T0001
+  businessName: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPassword: string;     // temporary, shown once
+  phone: string;
+  address: string;
+  courtsCount: number;
+  plan: 'starter' | 'pro' | 'enterprise';
+  trialExpiration: string;   // YYYY-MM-DD
+  status: 'active' | 'suspended' | 'pending';
+  createdAt: string;
+  adminId: string;           // reference to managedAdmins entry
 }
 
 export interface PlatformUser {

@@ -46,3 +46,10 @@ export interface StaffBooking {
 }
 
 export type StaffPage = 'dashboard' | 'schedule' | 'courts' | 'checkin' | 'players';
+
+export interface StaffPermissions {
+  canCheckIn: boolean;
+  canManageCourts: boolean;
+  canViewSchedule: boolean;
+  canViewPlayers: boolean;
+}

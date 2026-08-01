@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { StaffUser } from '../types';
-import { managedStaff } from '../../admin/context/AdminAuthContext';
+import type { StaffUser, StaffPermissions } from '../types';
+import { managedStaff, DEFAULT_STAFF_PERMISSIONS } from '../../admin/context/AdminAuthContext';
 
 interface StaffAuthCtx {
   user: StaffUser | null;
   isAuthenticated: boolean;
+  permissions: StaffPermissions;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -25,8 +26,13 @@ export function StaffAuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => setUser(null);
 
+  // Always resolve live from managedStaff so permission changes take effect immediately
+  const permissions: StaffPermissions = user
+    ? (managedStaff.find(s => s.id === user.id)?.permissions ?? DEFAULT_STAFF_PERMISSIONS)
+    : DEFAULT_STAFF_PERMISSIONS;
+
   return (
-    <StaffAuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <StaffAuthContext.Provider value={{ user, isAuthenticated: !!user, permissions, login, logout }}>
       {children}
     </StaffAuthContext.Provider>
   );

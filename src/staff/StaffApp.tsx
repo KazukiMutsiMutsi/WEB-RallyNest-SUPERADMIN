@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StaffLayout from './components/StaffLayout';
 import { StaffAuthProvider, useStaffAuth } from './context/StaffAuthContext';
 import StaffCheckIn from './screens/StaffCheckIn';
@@ -8,25 +8,39 @@ import StaffPlayers from './screens/StaffPlayers';
 import StaffSchedule from './screens/StaffSchedule';
 import type { StaffPage } from './types';
 
-/** Inner portal — requires StaffAuthProvider above it in the tree */
 export function StaffPortal() {
-  const { isAuthenticated } = useStaffAuth();
+  const { isAuthenticated, permissions } = useStaffAuth();
   const [page, setPage] = useState<StaffPage>('dashboard');
 
-  if (!isAuthenticated) return null; // UnifiedApp handles login gate
+  // If current page becomes forbidden (permissions changed), redirect to dashboard
+  useEffect(() => {
+    if (page === 'checkin'  && !permissions.canCheckIn)      setPage('dashboard');
+    if (page === 'courts'   && !permissions.canManageCourts) setPage('dashboard');
+    if (page === 'schedule' && !permissions.canViewSchedule) setPage('dashboard');
+    if (page === 'players'  && !permissions.canViewPlayers)  setPage('dashboard');
+  }, [permissions, page]);
+
+  if (!isAuthenticated) return null;
+
+  const navigate = (p: StaffPage) => {
+    if (p === 'checkin'  && !permissions.canCheckIn)      return;
+    if (p === 'courts'   && !permissions.canManageCourts) return;
+    if (p === 'schedule' && !permissions.canViewSchedule) return;
+    if (p === 'players'  && !permissions.canViewPlayers)  return;
+    setPage(p);
+  };
 
   return (
-    <StaffLayout page={page} onNavigate={setPage}>
-      {page === 'dashboard' && <StaffDashboard />}
-      {page === 'schedule'  && <StaffSchedule  />}
-      {page === 'courts'    && <StaffCourts    />}
-      {page === 'checkin'   && <StaffCheckIn   />}
-      {page === 'players'   && <StaffPlayers   />}
+    <StaffLayout page={page} onNavigate={navigate}>
+      {page === 'dashboard'                          && <StaffDashboard />}
+      {page === 'schedule'  && permissions.canViewSchedule  && <StaffSchedule  />}
+      {page === 'courts'    && permissions.canManageCourts  && <StaffCourts    />}
+      {page === 'checkin'   && permissions.canCheckIn       && <StaffCheckIn   />}
+      {page === 'players'   && permissions.canViewPlayers   && <StaffPlayers   />}
     </StaffLayout>
   );
 }
 
-/** Standalone entry — wraps its own provider */
 export default function StaffApp() {
   return (
     <StaffAuthProvider>

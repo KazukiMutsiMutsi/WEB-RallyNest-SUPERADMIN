@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../context/AdminAuthContext';
-import type { AdminPage } from '../types';
+import type { AdminPage, AdminPermissions } from '../types';
 import {
   IconDashboard, IconBookings, IconCourts, IconUsers,
   IconStaff, IconReports, IconSettings, IconLogout,
@@ -48,6 +48,7 @@ interface Props {
   page: AdminPage;
   onNavigate: (p: AdminPage) => void;
   children: React.ReactNode;
+  adminPermissions?: AdminPermissions | null;
 }
 
 function useWindowWidth() {
@@ -60,7 +61,7 @@ function useWindowWidth() {
   return w;
 }
 
-export default function AdminLayout({ page, onNavigate, children }: Props) {
+export default function AdminLayout({ page, onNavigate, children, adminPermissions }: Props) {
   const { user, logout } = useAdminAuth();
   const [collapsed,  setCollapsed]  = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -71,6 +72,21 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
   const isTablet = width >= 768 && width < 1100;
   const isSuperAdmin = user?.role === 'superadmin';
   const roleLabel = isSuperAdmin ? 'Super Admin' : 'Admin';
+
+  // Filter facility nav by permissions for non-superadmins
+  const visibleFacilityNav = isSuperAdmin ? [] : NAV_FACILITY.filter(item => {
+    if (item.id === 'dashboard' || item.id === 'bookings') return true;
+    if (item.id === 'users')    return adminPermissions?.canManageUsers    !== false;
+    if (item.id === 'courts')   return adminPermissions?.canManageCourts   !== false;
+    if (item.id === 'staff')    return adminPermissions?.canManageStaff    !== false;
+    if (item.id === 'reports')  return adminPermissions?.canViewReports    !== false;
+    if (item.id === 'settings') return adminPermissions?.canManageSettings !== false;
+    return true;
+  });
+  const width = useWindowWidth();
+
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1100;
 
   useEffect(() => {
     if (isTablet) setCollapsed(true);
@@ -119,7 +135,7 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
                 </div>
               </div>
               <div style={m.divider} />
-              {!isSuperAdmin && NAV_FACILITY.map(item => {
+              {visibleFacilityNav.map(item => {
                 const active = page === item.id;
                 return (
                   <button key={item.id} onClick={() => go(item.id)}
@@ -199,7 +215,7 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
         <div style={d.divider} />
 
         <nav style={d.nav}>
-          {!isSuperAdmin && NAV_FACILITY.map(item => {
+          {visibleFacilityNav.map(item => {
             const active = page === item.id;
             return (
               <button key={item.id} onClick={() => onNavigate(item.id)}

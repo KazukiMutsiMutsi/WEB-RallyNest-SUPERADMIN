@@ -24,45 +24,65 @@ import SuperReviews from './screens/SuperReviews';
 import SuperFeatures from './screens/SuperFeatures';
 import SuperBackup from './screens/SuperBackup';
 import SuperAdmins from './screens/SuperAdmins';
+import SuperUsers from './screens/SuperUsers';
 import type { AdminPage } from './types';
 
 const SUPER_PAGES: AdminPage[] = [
   'global-dashboard', 'tenants', 'owners', 'subscriptions', 'revenue',
   'announcements', 'support', 'platform-analytics', 'security',
   'platform-settings', 'payment-gateways', 'platform-reports',
-  'reviews', 'features', 'backup', 'admins',
+  'reviews', 'features', 'backup', 'admins', 'super-users',
 ];
 
 export function AdminPortal() {
-  const { isAuthenticated, user } = useAdminAuth();
+  const { isAuthenticated, user, adminPermissions } = useAdminAuth();
   const isSuperAdmin = user?.role === 'superadmin';
-  const defaultPage: AdminPage = isSuperAdmin ? 'global-dashboard' : 'dashboard';
-  const [page, setPage] = useState<AdminPage>(defaultPage);
+  const [page, setPage] = useState<AdminPage>('dashboard');
 
   useEffect(() => {
-    if (!isSuperAdmin && SUPER_PAGES.includes(page)) setPage('dashboard');
-  }, [isSuperAdmin, page]);
+    if (user?.role === 'superadmin') setPage('global-dashboard');
+    else setPage('dashboard');
+  }, [user?.role]);
+
+  useEffect(() => {
+    if (!isSuperAdmin && SUPER_PAGES.includes(page)) { setPage('dashboard'); return; }
+    if (!isSuperAdmin && adminPermissions) {
+      if (page === 'users'    && !adminPermissions.canManageUsers)    { setPage('dashboard'); return; }
+      if (page === 'courts'   && !adminPermissions.canManageCourts)   { setPage('dashboard'); return; }
+      if (page === 'staff'    && !adminPermissions.canManageStaff)    { setPage('dashboard'); return; }
+      if (page === 'reports'  && !adminPermissions.canViewReports)    { setPage('dashboard'); return; }
+      if (page === 'settings' && !adminPermissions.canManageSettings) { setPage('dashboard'); return; }
+    }
+  }, [isSuperAdmin, adminPermissions, page]);
 
   if (!isAuthenticated) return null;
 
   const navigate = (p: AdminPage) => {
     if (!isSuperAdmin && SUPER_PAGES.includes(p)) return;
+    if (!isSuperAdmin && adminPermissions) {
+      if (p === 'users'    && !adminPermissions.canManageUsers)    return;
+      if (p === 'courts'   && !adminPermissions.canManageCourts)   return;
+      if (p === 'staff'    && !adminPermissions.canManageStaff)    return;
+      if (p === 'reports'  && !adminPermissions.canViewReports)    return;
+      if (p === 'settings' && !adminPermissions.canManageSettings) return;
+    }
     setPage(p);
   };
 
   return (
-    <AdminLayout page={page} onNavigate={navigate}>
-      {page === 'dashboard'          && <AdminDashboard        />}
-      {page === 'bookings'           && <AdminBookings         />}
-      {page === 'courts'             && <AdminCourts           />}
-      {page === 'users'              && <AdminUsers            />}
-      {page === 'staff'              && <AdminStaff            />}
-      {page === 'reports'            && <AdminReports          />}
-      {page === 'settings'           && <AdminSettings         />}
+    <AdminLayout page={page} onNavigate={navigate} adminPermissions={adminPermissions}>
+      {page === 'dashboard'                                                   && <AdminDashboard        />}
+      {page === 'bookings'                                                    && <AdminBookings         />}
+      {page === 'courts'   && (!adminPermissions || adminPermissions.canManageCourts)   && <AdminCourts />}
+      {page === 'users'    && (!adminPermissions || adminPermissions.canManageUsers)    && <AdminUsers  />}
+      {page === 'staff'    && (!adminPermissions || adminPermissions.canManageStaff)    && <AdminStaff  />}
+      {page === 'reports'  && (!adminPermissions || adminPermissions.canViewReports)    && <AdminReports />}
+      {page === 'settings' && (!adminPermissions || adminPermissions.canManageSettings) && <AdminSettings />}
       {isSuperAdmin && page === 'global-dashboard'   && <SuperGlobalDashboard  />}
       {isSuperAdmin && page === 'tenants'            && <SuperTenants          />}
       {isSuperAdmin && page === 'owners'             && <SuperOwners           />}
       {isSuperAdmin && page === 'admins'             && <SuperAdmins           />}
+      {isSuperAdmin && page === 'super-users'        && <SuperUsers            />}
       {isSuperAdmin && page === 'subscriptions'      && <SuperSubscriptions    />}
       {isSuperAdmin && page === 'revenue'            && <SuperRevenue          />}
       {isSuperAdmin && page === 'announcements'      && <SuperAnnouncements    />}

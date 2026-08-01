@@ -41,7 +41,7 @@ const BORDER  = '#1e2740';
 const MUTED   = '#64748b';
 
 export default function StaffLayout({ page, onNavigate, children }: Props) {
-  const { user, logout } = useStaffAuth();
+  const { user, logout, permissions } = useStaffAuth();
   const [collapsed,  setCollapsed]  = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [now,        setNow]        = useState(new Date());
@@ -50,6 +50,16 @@ export default function StaffLayout({ page, onNavigate, children }: Props) {
   const isMobile = width < 768;
   const isTablet = width >= 768 && width < 1100;
 
+  // Filter nav items based on permissions
+  const allowedNav = NAV.filter(item => {
+    if (item.id === 'dashboard') return true;
+    if (item.id === 'checkin')   return permissions.canCheckIn;
+    if (item.id === 'courts')    return permissions.canManageCourts;
+    if (item.id === 'schedule')  return permissions.canViewSchedule;
+    if (item.id === 'players')   return permissions.canViewPlayers;
+    return false;
+  });
+
   useEffect(() => {
     if (isTablet) setCollapsed(true);
     else if (!isMobile) setCollapsed(false);
@@ -57,8 +67,14 @@ export default function StaffLayout({ page, onNavigate, children }: Props) {
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
 
-  const go = (p: StaffPage) => { onNavigate(p); setMobileOpen(false); };
-  const current = NAV.find(n => n.id === page);
+  const go = (p: StaffPage) => {
+    // Block navigation to pages the staff doesn't have permission for
+    const allowed = allowedNav.some(n => n.id === p);
+    if (!allowed) return;
+    onNavigate(p);
+    setMobileOpen(false);
+  };
+  const current = allowedNav.find(n => n.id === page) ?? allowedNav[0];
   const initials = (user?.name ?? 'ST').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
 
   // ── Mobile ─────────────────────────────────────────────────────────────────
@@ -89,7 +105,7 @@ export default function StaffLayout({ page, onNavigate, children }: Props) {
                 </div>
               </div>
               <div style={m.divider} />
-              {NAV.map(item => {
+              {allowedNav.map(item => {
                 const active = page === item.id;
                 return (
                   <button key={item.id} onClick={() => go(item.id)}
@@ -116,7 +132,7 @@ export default function StaffLayout({ page, onNavigate, children }: Props) {
         <main style={m.content}>{children}</main>
 
         <nav style={m.bottomNav}>
-          {NAV.map(item => {
+          {allowedNav.map(item => {
             const active = page === item.id;
             return (
               <button key={item.id} onClick={() => go(item.id)}
@@ -147,7 +163,7 @@ export default function StaffLayout({ page, onNavigate, children }: Props) {
         </div>
         <div style={d.divider} />
         <nav style={d.nav}>
-          {NAV.map(item => {
+          {allowedNav.map(item => {
             const active = page === item.id;
             return (
               <button key={item.id} onClick={() => onNavigate(item.id)}
