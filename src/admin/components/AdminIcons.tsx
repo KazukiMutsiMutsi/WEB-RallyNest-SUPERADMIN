@@ -43,3 +43,16 @@ export const IconTrending    = i('M23 6l-9.5 9.5-5-5L1 18M17 6h6v6');
 export const IconMoney       = i('M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6');
 export const IconCalendar    = i('M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z');
 export const IconLayers      = i('M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5');
+
+export const IconBuilding      = i('M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10');
+export const IconGlobe         = i('M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z');
+export const IconCreditCard    = i('M1 4h22v16H1zM1 10h22');
+export const IconAnnounce      = i('M22 12A10 10 0 002 12M18 12a6 6 0 00-12 0M2 12h2m16 0h2M12 2v2m0 16v2');
+export const IconHeadset       = i('M3 18v-6a9 9 0 0118 0v6M3 18a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3zM16 18a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2h-3z');
+export const IconActivity      = i('M22 12h-4l-3 9L9 3l-3 9H2');
+export const IconShield        = i('M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z');
+export const IconGateway       = i('M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18');
+export const IconStar          = i('M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z');
+export const IconToggle        = i('M5 12a7 7 0 0014 0M5 12a7 7 0 0114 0M5 12H3m18 0h-2m-7-7V3m0 18v-2');
+export const IconDatabase      = i('M4 6c0 1.657 3.582 3 8 3s8-1.343 8-3M4 6c0-1.657 3.582-3 8-3s8 1.343 8 3M4 6v6c0 1.657 3.582 3 8 3s8-1.343 8-3V6M4 12v6c0 1.657 3.582 3 8 3s8-1.343 8-3v-6');
+export const IconOwner         = i('M20 21v-2a4 4 0 00-4-4h-4a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8M22 9l-4 4-2-2');

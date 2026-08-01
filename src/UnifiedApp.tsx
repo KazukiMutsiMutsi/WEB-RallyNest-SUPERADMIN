@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AdminPortal } from './admin/AdminApp';
-import { AdminAuthProvider, useAdminAuth } from './admin/context/AdminAuthContext';
+import { AdminAuthProvider, useAdminAuth, managedAdmins, managedStaff } from './admin/context/AdminAuthContext';
 import { StaffPortal } from './staff/StaffApp';
 import { StaffAuthProvider, useStaffAuth } from './staff/context/StaffAuthContext';
 
@@ -8,8 +8,9 @@ type Role = 'admin' | 'staff';
 
 function detectRole(email: string): Role | null {
   const e = email.trim().toLowerCase();
-  if (e === 'admin@picklepro.com') return 'admin';
-  if (e === 'staff@picklepro.com') return 'staff';
+  if (e === 'superadmin@picklepro.com') return 'admin';
+  if (managedAdmins.some(a => a.email.toLowerCase() === e)) return 'admin';
+  if (managedStaff.some(s => s.email.toLowerCase() === e)) return 'staff';
   return null;
 }
 
@@ -83,7 +84,9 @@ function UnifiedLogin({ onSuccess }: { onSuccess: (role: Role) => void }) {
 
   const detectedRole = detectRole(email);
 
-  const accent = detectedRole === 'admin' ? '#6366f1'
+  const isSuperAdmin = email.trim().toLowerCase() === 'superadmin@picklepro.com';
+
+  const accent = detectedRole === 'admin' ? (isSuperAdmin ? '#f59e0b' : '#6366f1')
                : detectedRole === 'staff' ? '#10b981'
                : '#3b82f6';
 
@@ -143,8 +146,11 @@ function UnifiedLogin({ onSuccess }: { onSuccess: (role: Role) => void }) {
             border: `1px solid ${accent}40`,
             transition: 'opacity 250ms, background 400ms, border-color 400ms',
           }}>
-            {detectedRole === 'admin' && (
-              <><ShieldIcon color={accent} /><span style={{ color: accent, fontSize: 12, fontWeight: 600 }}>Admin Portal — Full system access</span></>
+            {detectedRole === 'admin' && isSuperAdmin && (
+              <><ShieldIcon color={accent} /><span style={{ color: accent, fontSize: 12, fontWeight: 600 }}>Super Admin — Platform-wide access</span></>
+            )}
+            {detectedRole === 'admin' && !isSuperAdmin && (
+              <><ShieldIcon color={accent} /><span style={{ color: accent, fontSize: 12, fontWeight: 600 }}>Admin Portal — Facility management</span></>
             )}
             {detectedRole === 'staff' && (
               <><UserCheckIcon color={accent} /><span style={{ color: accent, fontSize: 12, fontWeight: 600 }}>Staff Portal — Operations access</span></>
