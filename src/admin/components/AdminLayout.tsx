@@ -5,9 +5,12 @@ import {
   IconDashboard, IconBookings, IconCourts, IconUsers,
   IconStaff, IconReports, IconSettings, IconLogout,
   IconMenu, IconX, IconChevronLeft, IconChevronRight,
+  IconBuilding, IconOwner, IconCreditCard, IconGlobe,
+  IconTrending, IconAnnounce, IconHeadset, IconActivity,
+  IconShield, IconGateway, IconStar, IconToggle, IconDatabase,
 } from './AdminIcons';
 
-const NAV: { id: AdminPage; label: string; Icon: React.FC<any> }[] = [
+const NAV_FACILITY: { id: AdminPage; label: string; Icon: React.FC<any> }[] = [
   { id: 'dashboard', label: 'Dashboard', Icon: IconDashboard },
   { id: 'bookings',  label: 'Bookings',  Icon: IconBookings  },
   { id: 'courts',    label: 'Courts',    Icon: IconCourts    },
@@ -16,6 +19,30 @@ const NAV: { id: AdminPage; label: string; Icon: React.FC<any> }[] = [
   { id: 'reports',   label: 'Reports',   Icon: IconReports   },
   { id: 'settings',  label: 'Settings',  Icon: IconSettings  },
 ];
+
+const NAV_SUPER: { id: AdminPage; label: string; Icon: React.FC<any> }[] = [
+  { id: 'global-dashboard',   label: 'Global Dashboard',   Icon: IconGlobe      },
+  { id: 'admins',             label: 'Admins',              Icon: IconStaff      },
+  { id: 'super-users',        label: 'Users',               Icon: IconUsers      },
+  { id: 'tenants',            label: 'Tenants',             Icon: IconBuilding   },
+  { id: 'owners',             label: 'Owners',              Icon: IconOwner      },
+  { id: 'subscriptions',      label: 'Subscriptions',       Icon: IconCreditCard },
+  { id: 'revenue',            label: 'Revenue',             Icon: IconTrending   },
+  { id: 'platform-analytics', label: 'Analytics',           Icon: IconActivity   },
+  { id: 'announcements',      label: 'Announcements',       Icon: IconAnnounce   },
+  { id: 'support',            label: 'Support Center',      Icon: IconHeadset    },
+  { id: 'security',           label: 'Security',            Icon: IconShield     },
+  { id: 'payment-gateways',   label: 'Payment Gateways',    Icon: IconGateway    },
+  { id: 'features',           label: 'Feature Mgmt',        Icon: IconToggle     },
+  { id: 'reviews',            label: 'Reviews',             Icon: IconStar       },
+  { id: 'platform-reports',   label: 'Platform Reports',    Icon: IconReports    },
+  { id: 'platform-settings',  label: 'Platform Settings',   Icon: IconSettings   },
+  { id: 'backup',             label: 'Backup & Restore',    Icon: IconDatabase   },
+];
+
+const SUPER_PAGES: AdminPage[] = NAV_SUPER.map(n => n.id);
+
+const NAV = NAV_FACILITY;
 
 interface Props {
   page: AdminPage;
@@ -42,6 +69,8 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
 
   const isMobile = width < 768;
   const isTablet = width >= 768 && width < 1100;
+  const isSuperAdmin = user?.role === 'superadmin';
+  const roleLabel = isSuperAdmin ? 'Super Admin' : 'Admin';
 
   useEffect(() => {
     if (isTablet) setCollapsed(true);
@@ -54,7 +83,9 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
   }, []);
 
   const go = (p: AdminPage) => { onNavigate(p); setMobileOpen(false); };
-  const current = NAV.find(n => n.id === page);
+  const isSuperPage = SUPER_PAGES.includes(page);
+  const activeNav   = isSuperPage ? NAV_SUPER : NAV_FACILITY;
+  const current     = [...NAV_FACILITY, ...NAV_SUPER].find(n => n.id === page);
   const initials = (user?.name ?? 'AD').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
 
   const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -84,11 +115,11 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
                 <div style={m.avatar}>{initials}</div>
                 <div>
                   <div style={m.userName}>{user?.name}</div>
-                  <div style={m.userRole}>Super Admin</div>
+                  <div style={m.userRole}>{roleLabel}</div>
                 </div>
               </div>
               <div style={m.divider} />
-              {NAV.map(item => {
+              {!isSuperAdmin && NAV_FACILITY.map(item => {
                 const active = page === item.id;
                 return (
                   <button key={item.id} onClick={() => go(item.id)}
@@ -98,6 +129,22 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
                   </button>
                 );
               })}
+              {isSuperAdmin && (
+                <>
+                  <div style={m.divider} />
+                  <div style={{ padding:'6px 16px 2px', fontSize:9, fontWeight:700, color:'#475569', letterSpacing:1.2, textTransform:'uppercase' }}>Super Admin</div>
+                  {NAV_SUPER.map(item => {
+                    const active = page === item.id;
+                    return (
+                      <button key={item.id} onClick={() => go(item.id)}
+                        style={{ ...m.drawerItem, ...(active ? m.drawerItemActive : {}) }}>
+                        <item.Icon size={18} color={active ? '#6366f1' : '#64748b'} />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </>
+              )}
               <div style={m.divider} />
               <button onClick={logout} style={m.drawerLogout}>
                 <IconLogout size={16} color="#64748b" />
@@ -110,13 +157,13 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
         <div style={m.breadcrumb}>
           {current && <current.Icon size={14} color="#6366f1" />}
           <span style={m.breadcrumbText}>{current?.label}</span>
-          <span style={m.adminChip}>Admin</span>
+          <span style={m.adminChip}>{roleLabel}</span>
         </div>
 
         <main style={m.content}>{children}</main>
 
         <nav style={m.bottomNav}>
-          {NAV.slice(0, 5).map(item => {
+          {(isSuperAdmin ? NAV_SUPER : NAV_FACILITY).slice(0, 5).map(item => {
             const active = page === item.id;
             return (
               <button key={item.id} onClick={() => go(item.id)}
@@ -152,7 +199,23 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
         <div style={d.divider} />
 
         <nav style={d.nav}>
-          {NAV.map(item => {
+          {!isSuperAdmin && NAV_FACILITY.map(item => {
+            const active = page === item.id;
+            return (
+              <button key={item.id} onClick={() => onNavigate(item.id)}
+                title={collapsed ? item.label : undefined}
+                aria-current={active ? 'page' : undefined}
+                style={{ ...d.navItem, ...(active ? d.navItemActive : {}), justifyContent: collapsed ? 'center' : 'flex-start', padding: collapsed ? '10px 0' : '10px 14px' }}>
+                <item.Icon size={17} color={active ? '#6366f1' : '#64748b'} />
+                {!collapsed && <span style={{ fontSize:13, fontWeight: active ? 700 : 500 }}>{item.label}</span>}
+                {active && !collapsed && <div style={d.activeIndicator} />}
+              </button>
+            );
+          })}
+          {isSuperAdmin && !collapsed && <div style={{ ...d.divider, margin:'8px 0' }} />}
+          {isSuperAdmin && !collapsed && <div style={{ padding:'4px 6px 4px', fontSize:9, fontWeight:700, color:'#475569', letterSpacing:1.2, textTransform:'uppercase' }}>Super Admin</div>}
+          {isSuperAdmin && collapsed && <div style={{ ...d.divider, margin:'8px 0' }} />}
+          {isSuperAdmin && NAV_SUPER.map(item => {
             const active = page === item.id;
             return (
               <button key={item.id} onClick={() => onNavigate(item.id)}
@@ -174,7 +237,7 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
               <div style={d.avatar}>{initials}</div>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={d.userName}>{user?.name}</div>
-                <div style={d.userRole}>Super Admin</div>
+                <div style={d.userRole}>{roleLabel}</div>
               </div>
             </div>
           )}
@@ -199,7 +262,7 @@ export default function AdminLayout({ page, onNavigate, children }: Props) {
           </div>
           <div style={d.topRight}>
             <span style={d.timechip}>{now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}</span>
-            {!isTablet && <span style={d.adminChip}>Super Admin</span>}
+            {!isTablet && <span style={d.adminChip}>{roleLabel}</span>}
           </div>
         </header>
         <main style={d.content}>{children}</main>
